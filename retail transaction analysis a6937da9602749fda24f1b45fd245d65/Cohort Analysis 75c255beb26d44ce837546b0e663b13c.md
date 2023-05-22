@@ -201,5 +201,102 @@ Once the customer made a purchase at the current month, customer would be identi
     ```
     
 3. **Cohort Analysis for Life-Time Consumption**
-4. **Cohort Analysis for Sales Trends**
-5. **Cohort Analysis for Retention Rate**
+
+    ```python
+    # plot the cohort analysis by cumulative sales, percentage change of cumulative sales
+
+    import seaborn as sns
+    import matplotlib.pyplot as plt
+    # get the pivot_table in forms of cohort, invoicedate 
+    # to present the summation of total_sales with percentage change along the column
+    vis_df = cohort_df.pivot_table(
+        values='total_sales',
+        index='cohort',
+        columns='invoicedate',
+        aggfunc='sum'
+    ).cumsum(axis=1).pct_change(axis=1).loc[:, '2010-12':'2011-11']
+
+    # plot the heatmap
+    plt.figure(figsize=(10, 5))
+    sns.heatmap(
+        vis_df,
+        annot=True,
+        fmt='.0%',
+        cmap='RdYlGn_r',
+        vmin=-1,
+        vmax=1
+    )
+    plt.xlabel('Transaction Month')
+    plt.ylabel('Cohort')
+    plt.title('Cohort Analysis by Cumulative Sales, Percentage Change of Cumulative Sales')
+    plt.show()
+    ```
+    
+5. **Cohort Analysis for Sales Trends**
+    ```python
+    # plot the cohort analysis by total of sales, percentage change of sales
+
+    # get the pivot_table in forms of cohort, invoicedate
+    # to present the summation of total_sales with percentage change along the column
+    vis_df = cohort_df.pivot_table(
+        values='total_sales',
+        index='cohort',
+        columns='invoicedate',
+        aggfunc='sum'
+    ).pct_change(axis=1).loc[:, '2010-12':'2011-11']
+
+    # plot the heatmap
+    plt.figure(figsize=(10, 5))
+    sns.heatmap(
+        vis_df,
+        annot=True,
+        fmt='.0%',
+        cmap='RdYlGn_r',
+        vmin=-1,
+        vmax=1
+    )
+    plt.xlabel('Transaction Month')
+    plt.ylabel('Cohort')
+    plt.title('Cohort Analysis by Total of Sales, Percentage Change of Sales')
+    plt.show()
+    ```
+
+
+7. **Cohort Analysis for Retention Rate**
+    ```python
+    # plot the cohort analysis by customer retention rate
+    # This code creates a pivot table that shows the number of customers in each cohort for each month. 
+    # Then, it divides each cell by the number of customers in the first month of the cohort to get the retention rate. 
+    #Finally, it uses seaborn to create a heatmap that shows the retention rate for each cohort for each month.
+
+    vis_df = cohort_df.pivot_table(
+        values='n_customers',
+        index='cohort',
+        columns='invoicedate',
+        aggfunc='sum'
+    ).divide(
+        cohort_df.reset_index(level=1).groupby('cohort')['n_customers'].transform('first').drop_duplicates(),
+        axis=0
+    ).loc[:, '2010-12':'2011-11']
+
+    plt.figure(figsize=(10, 5))
+    sns.heatmap(
+        vis_df,
+        annot=True,
+        fmt='.0%',
+        cmap='RdYlGn_r',
+        vmin=0,
+        vmax=1
+    )
+    plt.title('Cohort Analysis by Customer Retention Rate')
+    plt.xlabel('Transaction Month')
+    plt.ylabel('Cohort')
+    plt.show()
+    ```
+
+
+
+
+
+
+
